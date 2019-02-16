@@ -24,14 +24,16 @@ public class Main {
 			}
 			
 			AnnotationSource<JavaClassSource> autowired = field.getAnnotation("Autowired");
-			
-			field.removeAnnotation(autowired);
+			if (autowired!=null) {
+				field.removeAnnotation(autowired);
+			}
 			if (beanName != null) {
 				AnnotationSource<JavaClassSource> resource = field.addAnnotation();
 				resource.setName("Resource");
 				resource.setLiteralValue("name", beanName);	
 			}
 		}
+		aClass.addImport("javax.annotation.Resource");
 		System.out.println(aClass.toUnformattedString());
 	}
 

@@ -11,6 +11,11 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>javax.resource</groupId>
+			<artifactId>javax.resource-api</artifactId>
+			<version>1.7</version>
+		</dependency>
+		<dependency>
 			<groupId>com.github.javaparser</groupId>
 			<artifactId>javaparser-symbol-solver-core</artifactId>
 			<version>3.12.0</version>
