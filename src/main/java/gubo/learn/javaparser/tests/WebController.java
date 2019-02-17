@@ -15,4 +15,13 @@ public class WebController {
 	   @Resource(name="kkk")
 	String anotherFieldToShowWhiteSpaces 
 	;
+	   
+	   
+	   public static class InnerOfWebController {
+		   
+		   @Autowired
+			@Qualifier("sdf1")
+			  public   String   someTest  ;
+		   
+	   }
 }
