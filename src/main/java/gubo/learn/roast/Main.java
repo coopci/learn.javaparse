@@ -13,41 +13,25 @@ import org.jboss.forge.roaster.model.source.JavaSource;
 // This really works: replacing @Autowired and @Qualifier with @Resource
 public class Main {
 
-	public static void processClass(JavaClassSource aClass) {
-		
-		for (FieldSource<JavaClassSource> field: aClass.getFields()) {
-			String beanName = null;
-			AnnotationSource<JavaClassSource> qualifier = field.getAnnotation("Qualifier");
-			if (qualifier!=null) {
-				beanName = qualifier.getLiteralValue();
-				field.removeAnnotation(qualifier);
-			}
-			
-			AnnotationSource<JavaClassSource> autowired = field.getAnnotation("Autowired");
-			if (autowired!=null) {
-				field.removeAnnotation(autowired);
-			}
-			if (beanName != null) {
-				AnnotationSource<JavaClassSource> resource = field.addAnnotation();
-				resource.setName("Resource");
-				resource.setLiteralValue("name", beanName);	
-			}
-		}
-		for (JavaSource<?> js : aClass.getNestedTypes()){
-			
-			if (js instanceof JavaClassSource){
-				processClass((JavaClassSource) js);
-			}
-		}
-		
-	}
-	public static void main(String[] args) throws FileNotFoundException {
-		JavaClassSource aClass = Roaster.parse(JavaClassSource.class, new File("./src/main/java/gubo/learn/javaparser/tests/WebController.java"));
 
-		processClass(aClass);
+
+	public static void process(File f, JavaClassSourceProcessor p) throws FileNotFoundException {
+		if (f.isFile()) {
+			JavaClassSource aClass = Roaster.parse(JavaClassSource.class, f);
+
+			String output = p.processClass(aClass);
+			System.out.println(output);
+		}
+
+	}
+
+
+	public static void main(String[] args) throws FileNotFoundException {
+		File f = new File("./src/main/java/gubo/learn/javaparser/tests/WebController.java");
+		process(f, new JavaClassSourceProcessor());
 		
-		aClass.addImport("javax.annotation.Resource");
-		System.out.println(aClass.toUnformattedString());
+
+
 	}
 
 }
