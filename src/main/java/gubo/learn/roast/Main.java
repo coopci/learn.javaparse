@@ -9,6 +9,7 @@ import org.jboss.forge.roaster.model.source.AnnotationSource;
 import org.jboss.forge.roaster.model.source.FieldSource;
 import org.jboss.forge.roaster.model.source.JavaClassSource;
 import org.jboss.forge.roaster.model.source.JavaSource;
+import org.jboss.forge.roaster.model.source.MethodSource;
 
 // This really works: replacing @Autowired and @Qualifier with @Resource
 public class Main {
@@ -32,6 +33,10 @@ public class Main {
 				resource.setName("Resource");
 				resource.setLiteralValue("name", beanName);	
 			}
+		}
+		for (MethodSource<JavaClassSource> method: aClass.getMethods()) {
+			method.getBody();
+			
 		}
 		for (JavaSource<?> js : aClass.getNestedTypes()){
 			
