@@ -2,57 +2,60 @@ package gubo.learn.roast;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.jboss.forge.roaster.Roaster;
 import org.jboss.forge.roaster.model.source.AnnotationSource;
 import org.jboss.forge.roaster.model.source.FieldSource;
 import org.jboss.forge.roaster.model.source.JavaClassSource;
 import org.jboss.forge.roaster.model.source.JavaSource;
-import org.jboss.forge.roaster.model.source.MethodSource;
 
 // This really works: replacing @Autowired and @Qualifier with @Resource
 public class Main {
 
-	public static void processClass(JavaClassSource aClass) {
-		
-		for (FieldSource<JavaClassSource> field: aClass.getFields()) {
-			String beanName = null;
-			AnnotationSource<JavaClassSource> qualifier = field.getAnnotation("Qualifier");
-			if (qualifier!=null) {
-				beanName = qualifier.getLiteralValue();
-				field.removeAnnotation(qualifier);
-			}
-			
-			AnnotationSource<JavaClassSource> autowired = field.getAnnotation("Autowired");
-			if (autowired!=null) {
-				field.removeAnnotation(autowired);
-			}
-			if (beanName != null) {
-				AnnotationSource<JavaClassSource> resource = field.addAnnotation();
-				resource.setName("Resource");
-				resource.setLiteralValue("name", beanName);	
-			}
-		}
-		for (MethodSource<JavaClassSource> method: aClass.getMethods()) {
-			method.getBody();
-			
-		}
-		for (JavaSource<?> js : aClass.getNestedTypes()){
-			
-			if (js instanceof JavaClassSource){
-				processClass((JavaClassSource) js);
-			}
-		}
-		
-	}
-	public static void main(String[] args) throws FileNotFoundException {
-		JavaClassSource aClass = Roaster.parse(JavaClassSource.class, new File("./src/main/java/gubo/learn/javaparser/tests/WebController.java"));
 
-		processClass(aClass);
+
+
+	public static void process(File f, JavaClassSourceProcessor processor, boolean doReplace) throws IOException {
+		if (f.isFile()) {
+			System.out.println("Processing " + f.toString() + "...");
+			JavaClassSource aClass = Roaster.parse(JavaClassSource.class, f);
+
+			String output = processor.processClass(aClass);
+			System.out.println(output);
+
+			if (doReplace) {
+
+				//
+			}
+
+		} else if (f.isDirectory()) {
+
+
+			List<Path> paths = Files.walk(Paths.get(f.toString()))
+					.filter(Files::isRegularFile)
+					.filter(f1 -> f1.toString().endsWith(".java"))
+					.collect(Collectors.toList());
+
+			for (Path p : paths) {
+				process(new File(p.toString()), processor, doReplace);
+			}
+		}
+	}
+
+
+	public static void main(String[] args) throws IOException {
+		// File f = new File("./src/main/java/gubo/learn/javaparser/tests/WebController.java");
+		File f = new File("./src/main/java/gubo/learn/javaparser/tests/");
+		process(f, new JavaClassSourceProcessor(), false);
 		
-		aClass.addImport("javax.annotation.Resource");
-		System.out.println(aClass.toUnformattedString());
+
+
 	}
 
 }
