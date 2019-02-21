@@ -25,7 +25,7 @@ import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinte
  * StaticMethodReplacer rep = StaticMethodReplacer("pkg1.Class1.staticMethod1","pkg2.Class2.staticMethod2");
  * String result = rep.replace(new File("..."));
  **/
-public class StaticMethodReplacer {
+public class StaticMethodReplacer implements IJavaClassSourceProcessor {
 
 	final String from;
 	final String to;
@@ -145,8 +145,8 @@ public class StaticMethodReplacer {
 			MethodCallExpr mc = (MethodCallExpr) n;
 			processMethodCallExpr(mc);
 		}
-		// ÕâÀï²»ĞèÒªelse£¬ ¼´±ãÊÇMethodCallExprÒ²ÓĞ¿ÉÄÜÓĞMethodCallExprÀàĞÍµÄ×Ó½Úµã
-		// ÀıÈç staticMethod1(gubo.learn.javaparser.tests.StaticClass1.staticMethod1(1));
+		// è¿™é‡Œä¸éœ€è¦elseï¼Œ å³ä¾¿æ˜¯MethodCallExprä¹Ÿæœ‰å¯èƒ½æœ‰MethodCallExprç±»å‹çš„å­èŠ‚ç‚¹
+		// ä¾‹å¦‚ staticMethod1(gubo.learn.javaparser.tests.StaticClass1.staticMethod1(1));
 		for (Node cn : n.getChildNodes()) {
 			processNode(cn);
 		}
@@ -188,13 +188,17 @@ public class StaticMethodReplacer {
 		}
 	}
 
-	public static void main(String[] args) throws FileNotFoundException {
-		StaticMethodReplacer rep = new StaticMethodReplacer(
-				"gubo.learn.javaparser.tests.StaticClass1.staticMethod1",
-				"gubo.learn.javaparser.tests.StaticClass2.staticMethod2");
-		String output = rep
-				.processFile(new File(
-						"./src/main/java/gubo/learn/javaparser/tests/WebController.java"));
-		System.out.println(output);
-	}
+	public static void main(String[] args) throws IOException {
+        StaticMethodReplacer rep = new StaticMethodReplacer(
+                "gubo.learn.javaparser.tests.StaticClass1.staticMethod1",
+                "gubo.learn.javaparser.tests.StaticClass2.staticMethod2");
+//        String output = rep
+//                .processFile(new File(
+//                        "./src/main/java/gubo/learn/javaparser/tests/WebController.java"));
+//        System.out.println(output);
+
+
+        GlobCaller gc = new GlobCaller("*.java");
+        gc.process(new File("./src/main/java/"), rep, false);
+    }
 }
