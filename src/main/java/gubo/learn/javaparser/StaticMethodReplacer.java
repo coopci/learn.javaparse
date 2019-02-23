@@ -3,6 +3,7 @@ package gubo.learn.javaparser;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -145,13 +146,16 @@ public class StaticMethodReplacer implements IJavaClassSourceProcessor {
 			MethodCallExpr mc = (MethodCallExpr) n;
 			processMethodCallExpr(mc);
 		}
-		// 这里不需要else， 即便是MethodCallExpr也有可能有MethodCallExpr类型的子节点
-		// 例如 staticMethod1(gubo.learn.javaparser.tests.StaticClass1.staticMethod1(1));
+		// è¿™é‡Œä¸�éœ€è¦�elseï¼Œ å�³ä¾¿æ˜¯MethodCallExprä¹Ÿæœ‰å�¯èƒ½æœ‰MethodCallExprç±»åž‹çš„å­�èŠ‚ç‚¹
+		// ä¾‹å¦‚ staticMethod1(gubo.learn.javaparser.tests.StaticClass1.staticMethod1(1));
 		for (Node cn : n.getChildNodes()) {
 			processNode(cn);
 		}
 	}
 	void processMethod(MethodDeclaration md) {
+		if (!md.getBody().isPresent()) {
+			return;
+		}
 		for (Statement stmt : md.getBody().get().getStatements()) {
 			for (Node n : stmt.getChildNodes()) {
 				processNode(n);
@@ -199,6 +203,6 @@ public class StaticMethodReplacer implements IJavaClassSourceProcessor {
 
 
         GlobCaller gc = new GlobCaller("*.java");
-        gc.process(new File("./src/main/java/"), rep, false);
+        gc.process(new File("./src/main/java/gubo/learn/javaparser/tests"), rep, false);
     }
 }
